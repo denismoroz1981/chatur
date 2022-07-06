@@ -1,4 +1,4 @@
-import chessengine as ce
+import berlinerengine as ce
 import chess as ch
 
 class Main:
@@ -27,6 +27,26 @@ class Main:
         engine = ce.Engine(self.board, maxDepth, color)
         self.board.push(engine.getBestMove())
 
+    #checks on game end
+    def endchecks(self):
+        endcheck = False
+        if self.board.is_checkmate():
+            print("Checkmate!")
+            endcheck = True
+        elif self.board.is_stalemate():
+            print("Stalemate -> DRAW")
+            endcheck = True
+        elif self.board.is_fivefold_repetition():
+            print("Fivefold repetition -> DRAW")
+            endcheck = True
+        elif self.board.is_fifty_moves():
+            print("Fifty moves -> DRAW")
+            endcheck = True
+        elif self.board.is_check():
+            print("Check!")
+            endcheck = True
+        return endcheck
+
     #start a game
     def startGame(self):
         #get human player's color
@@ -34,19 +54,18 @@ class Main:
         while(color!="b" and color!="w"):
             color = input("""Play as (type "b" or "w"): """)
         maxDepth=None
+        #choosing depth
         while(isinstance(maxDepth, int)==False):
             maxDepth = int(input("""Choose depth: """))
-        if color=="b":
-            while (self.board.is_checkmate()==False):
+        #playing loop
+        while(self.endchecks()==False):
+            if color=="b":
                 print("The engine is thinking...")
                 self.playEngineMove(maxDepth, ch.WHITE)
                 print(self.board)
                 self.playHumanMove()
                 print(self.board)
-            print(self.board)
-            print(self.board.outcome())
-        elif color=="w":
-            while (self.board.is_checkmate()==False):
+            elif color=="w":
                 print(self.board)
                 self.playHumanMove()
                 print(self.board)
