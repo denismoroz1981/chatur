@@ -1,84 +1,35 @@
-import berlinerengine as ce
-import chess as ch
+import pygame as pg
 
-class Main:
+from game_config import *
+from chess_items import *
 
-    def __init__(self, board=ch.Board):
-        self.board=board
+clock = pg.time.Clock()
 
-    #play human move
-    def playHumanMove(self):
-        try:
-            print(self.board.legal_moves)
-            print("""To undo your last move, type "undo".""")
-            #get human move
-            play = input("Your move: ")
-            if (play=="undo"):
-                self.board.pop()
-                self.board.pop()
-                self.playHumanMove()
-                return
-            self.board.push_san(play)
-        except:
-            self.playHumanMove()
+screen = pg.display.set_mode(WINDOW_SIZE)
 
-    #play engine move
-    def playEngineMove(self, maxDepth, color):
-        engine = ce.Engine(self.board, maxDepth, color)
-        self.board.push(engine.getBestMove())
+#init and draw initial content
+screen.fill(BACKGROUND)
 
-    #checks on game end
-    def endchecks(self):
-        endcheck = False
-        if self.board.is_checkmate():
-            print("Checkmate!")
-            endcheck = True
-        elif self.board.is_stalemate():
-            print("Stalemate -> DRAW")
-            endcheck = True
-        elif self.board.is_fivefold_repetition():
-            print("Fivefold repetition -> DRAW")
-            endcheck = True
-        elif self.board.is_fifty_moves():
-            print("Fifty moves -> DRAW")
-            endcheck = True
-        elif self.board.is_check():
-            print("Check!")
-            endcheck = True
-        return endcheck
+#chessboard = Chessboard(screen, 4, 100)
+chessboard = Chessboard(screen)
 
-    #start a game
-    def startGame(self):
-        #get human player's color
-        color=None
-        while(color!="b" and color!="w"):
-            color = input("""Play as (type "b" or "w"): """)
-        maxDepth=None
-        #choosing depth
-        while(isinstance(maxDepth, int)==False):
-            maxDepth = int(input("""Choose depth: """))
-        #playing loop
-        while(self.endchecks()==False):
-            if color=="b":
-                print("The engine is thinking...")
-                self.playEngineMove(maxDepth, ch.WHITE)
-                print(self.board)
-                self.playHumanMove()
-                print(self.board)
-            elif color=="w":
-                print(self.board)
-                self.playHumanMove()
-                print(self.board)
-                print("The engine is thinking...")
-                self.playEngineMove(maxDepth, ch.BLACK)
-            print(self.board)
-            print(self.board.outcome())
-        #reset the board
-        self.board.reset
-        #start another game
-        self.startGame()
+run = True
+while run:
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            pg.quit()
+            run = False
+        if event.type == pg.MOUSEBUTTONDOWN:
+            chessboard.btn_down(event.button,event.pos)
+        if event.type == pg.MOUSEBUTTONUP:
+            chessboard.btn_up(event.button, event.pos)
+        if event.type == pg.MOUSEMOTION:
+            chessboard.drag(event.pos)
+        if event.type == pg.KEYDOWN:
+            chessboard.key_down(event)
+        if event.type == pg.KEYUP:
+            chessboard.key_up(event)
 
-#create an instance and start a game
-newBoard= ch.Board()
-game = Main(newBoard)
-bruh = game.startGame()
+        #other content handlers
+    # pg.display.update() #render of the screen, the most resourcefull process so it's better too call once
+    # clock.tick(FPS) #eval time intervals for all oper.systems
