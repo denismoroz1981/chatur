@@ -213,6 +213,7 @@ class Chessboard:
                     self.__inputbox.put_char(event.unicode)
 
             if event.key == pg.K_RETURN:
+                print("enter")
                 self.__update_board_with_fen()
             if event.key == pg.K_BACKSPACE:
                 self.__inputbox.pop_char()
@@ -229,16 +230,26 @@ class Chessboard:
     def __update_board_with_fen(self):
         empty_cells = 0
         piece_map = self.__inputbox.text.split('/')
-        for r in range(len(self.__table)):
+        #for r in range(len(self.__table)):
+        for r in range(len(piece_map)):
             index = 0
-            for i in range(len(self.__table[r])):
-                try:
-                    empty_cells = int(piece_map[r][index])
-                    self.__table[r][i] = 0
-                    empty_cells -= 1
-                except ValueError:
-                    self.__table[r][i] = 0
-                    empty_cells -=1
+            #for i in range(len(self.__table[r])):for r in range(len(self.__table)):
+            print(piece_map[r])
+            print(len(piece_map[r]))
+            for i in range(len(piece_map[r])):
+                #if empty_cells == 0
+
+                    try:
+                        empty_cells = int(piece_map[r][index])
+                        self.__table[r][i] = 0
+                        empty_cells -= 1
+                    except ValueError:
+                        self.__table[r][i] = piece_map[r][index]
+                    index +=1
+                #else:
+                    #self.__table[r][i] = 0
+                    #empty_cells -=1
+        print(self.__table)
         self.__all_pieces.empty()
         self.__setup_board()
         self.__grand_update()
