@@ -1,4 +1,4 @@
-from engines import berlinerengine as ce
+#from engines import berlinerengine as ce
 import chess as ch
 from game_config import *
 
@@ -8,29 +8,33 @@ class Engine:
         self.board=board
 
     def get_legal_moves(self):
-        moves = [i.uci() for i in self.board.legal_moves]
+        if self.board.legal_moves.count() > 0:
+            return [i.uci() for i in self.board.legal_moves]
+        else:
+            return None
 
-
+    def play_move(self, move:str):
+       self.board.push(ch.Move.from_uci(move))
     #play human move
-    def playHumanMove(self):
-        try:
-            print(self.board.legal_moves)
-            print("""To undo your last move, type "undo".""")
-            #get human move
-            play = input("Your move: ")
-            if (play=="undo"):
-                self.board.pop()
-                self.board.pop()
-                self.playHumanMove()
-                return
-            self.board.push_san(play)
-        except:
-            self.playHumanMove()
+    # def playHumanMove(self):
+    #     try:
+    #         print(self.board.legal_moves)
+    #         print("To undo your last move, type "undo")
+    #         #get human move
+    #         play = input("Your move: ")
+    #         if (play=="undo"):
+    #             self.board.pop()
+    #             self.board.pop()
+    #             self.playHumanMove()
+    #             return
+    #         self.board.push_san(play)
+    #     except:
+    #         self.playHumanMove()
 
     #play engine move
-    def playEngineMove(self, maxDepth, color):
+    """def playEngineMove(self, maxDepth, color):
         engine = ce.Berlinerengine(self.board, maxDepth, color)
-        self.board.push(engine.getBestMove())
+        self.board.push(engine.getBestMove())"""
 
     #checks on game end
     def endchecks(self):
@@ -53,17 +57,17 @@ class Engine:
         return endcheck
 
     #start a game
-    def startGame(self):
+    #def startGame(self):
         #get human player's color
         #color=None
         #while(color!="b" and color!="w"):
-        #    color = input("""Play as (type "b" or "w"): """)
+        #color = input(""Play as (type "b" or "w"): """)
         #maxDepth=None
         #choosing depth
         #while(isinstance(maxDepth, int)==False):
             #maxDepth = int(input("""Choose depth: """))
         #playing loop
-        while(self.endchecks()==False):
+        """while(self.endchecks()==False):
             if P_COLOR=="b":
                 print("The engine is thinking...")
                 self.playEngineMove(MAX_DEPTH, ch.WHITE)
@@ -81,9 +85,9 @@ class Engine:
         #reset the board
         self.board.reset
         #start another game
-        self.startGame()
+        self.startGame()"""
 
 #create an instance and start a game
-newBoard= ch.Board()
+"""newBoard= ch.Board()
 game = Engine(newBoard)
-bruh = game.startGame()
+bruh = game.startGame()"""

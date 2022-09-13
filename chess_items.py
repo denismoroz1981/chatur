@@ -1,8 +1,11 @@
 import pygame as pg
+import chess as ch
 from game_config import *
 import board_data
 import pyperclip as clip
 from pieces import *
+from engine import Engine
+
 pg.init()
 fnt_num = pg.font.SysFont(FNT_NAME, FNT_SIZE)
 
@@ -16,6 +19,7 @@ class Chessboard:
         self.__all_cells = pg.sprite.Group()
         self.__all_pieces = pg.sprite.Group()
         self.__all_areas = pg.sprite.Group()
+        self.__all_legal = pg.sprite.Group() #cells of legal moves
         self.__inputbox = None
         self.__pressed_cell = None
         self.__picked_piece = None
@@ -26,6 +30,7 @@ class Chessboard:
         self.__draw_playboard()
         self.__setup_board()
         self.__grand_update()
+        self.__engine = Engine(ch.Board())
 
     def __prepare_screen(self):
         back_img = pg.image.load(IMG_PATH  + WIN_BG_IMG)
@@ -173,6 +178,8 @@ class Chessboard:
             self.__dragged_piece = self.__get_piece_on_cell(self.__pressed_cell)
             if self.__dragged_piece is not None:
                 self.__dragged_piece.rect.center = position
+                #legal moves
+                self.__mark_legal_moves(self.__pressed_cell.field_name)
                 self.__grand_update()
         else:
             self.__pressed_cell = None
@@ -283,12 +290,44 @@ class Chessboard:
        self.__all_areas.empty()
        for cell in self.__all_cells:
             cell.mark = False
+#---------------------------------------------------------------
+    #transform legal moves list into dict groupped by move start cell
+    def __legal_moves_dict(self):
+        if self.__engine.get_legal_moves() is None: return None
+        legal_moves_dict = {}
+        for move in self.__engine.get_legal_moves():
+            #print(move[:1])
+            move_start, move_end = move[:2], move[2:4]
+            move_list = []
+            if move_start in legal_moves_dict:
+                move_list = legal_moves_dict[move_start]
+            move_list.append(move_end)
+            legal_moves_dict[move_start] = move_list
+        return legal_moves_dict
+
+    def __mark_legal_moves(self, start_cell: str):
+        legal_moves_dict = self.__legal_moves_dict()
+        print(legal_moves_dict)
+        if legal_moves_dict is not None:
+            for cell_name in legal_moves_dict[start_cell]:
+                cell = self.__get_cell_by_name(cell_name)
+                cell.legal = True
+                mark = Legal(cell)
+                self.__all_legal.add(mark)
+
+    def __get_cell_by_name(self, cell_name: str):
+        for cell in self.__all_cells:
+            if cell.field_name == cell_name:
+                return cell
+        return None
 
 
+#----------------------------------------------------------------
     def __grand_update(self):
         self.__all_cells.draw(self.__screen)
         self.__all_areas.draw(self.__screen)
         self.__all_pieces.draw(self.__screen)
+        self.__all_legal.draw(self.__screen)
         pg.display.update()
 
 class Cell(pg.sprite.Sprite):
@@ -302,6 +341,7 @@ class Cell(pg.sprite.Sprite):
         self.image = pg.transform.scale(self.image, (size,size))
         self.rect = pg.Rect(x*size, y*size,size,size)
         self.mark = False
+        self.legal = False
 
 class Area(pg.sprite.Sprite):
     def __init__(self, cell:Cell, type_of_area:bool = True):
@@ -352,3 +392,14 @@ class Inputbox(pg.sprite.Sprite):
         pg.draw.rect(self.image, INPUT_FONT_COLOR, (0,0, self.rect.width, self.rect.height),2)
         fen_text = fnt_num.render(self.text,1,INPUT_FONT_COLOR)
         self.image.blit(fen_text, (9,9))
+
+class Legal(pg.sprite.Sprite):
+    def __init__(self, cell:Cell):
+        super().__init__()
+        coords = (cell.rect.x, cell.rect.y)
+        area_size = (cell.rect.width, cell.rect.height)
+        #to define picture
+        picture = pg.image.load(IMG_PATH + "legal_mark.png").convert_alpha()
+        self.image = pg.transform.scale(picture, area_size)
+        self.rect = pg.Rect(coords, area_size)
+        self.field_name = cell.field_name

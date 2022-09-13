@@ -110,14 +110,15 @@ class Berlinerengine:
                     listKeyPrev = [i for i in key]
                     for i in listKeyPrev: self.board.push(ch.Move.from_uci(i))
                     for move in third_moves[key]:
-                        print(key)
-                        print(third_moves[key])
+
                         self.board.push(ch.Move.from_uci(move))
                         if self.board.legal_moves.count() > 0:
                             listKey = []
                             for i in listKeyPrev: listKey.append(i)
                             listKey.append(move)
                             listMoves = [i.uci() for i in self.board.legal_moves]
+                            print(listKey)
+                            print(listMoves)
                             next_moves.update({tuple(listKey): listMoves})
                             if depth == self.maxDepth-1:
                                 scores[key[0]].append(self.evalFunct())
@@ -133,4 +134,4 @@ class Berlinerengine:
 
         for key in scores:
             scores[key] = max(scores[key])
-        return sorted(scores,key=lambda x: scores[x])[0]
+        return sorted(scores,key=lambda x: scores[x])[0]"""
