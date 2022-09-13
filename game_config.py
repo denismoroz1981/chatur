@@ -28,3 +28,6 @@ PIECES_TYPES = {
     'n': ('Knight','b'), 'N':('Knight','w'),
     'p': ('Pawn','b'), 'P':('Pawn','w')
 }
+
+P_COLOR = "w"
+MAX_DEPTH = 3

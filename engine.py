@@ -1,10 +1,15 @@
-import berlinerengine as ce
+from engines import berlinerengine as ce
 import chess as ch
+from game_config import *
 
-class Main:
+class Engine:
 
     def __init__(self, board=ch.Board):
         self.board=board
+
+    def get_legal_moves(self):
+        moves = [i.uci() for i in self.board.legal_moves]
+
 
     #play human move
     def playHumanMove(self):
@@ -24,7 +29,7 @@ class Main:
 
     #play engine move
     def playEngineMove(self, maxDepth, color):
-        engine = ce.Engine(self.board, maxDepth, color)
+        engine = ce.Berlinerengine(self.board, maxDepth, color)
         self.board.push(engine.getBestMove())
 
     #checks on game end
@@ -50,27 +55,27 @@ class Main:
     #start a game
     def startGame(self):
         #get human player's color
-        color=None
-        while(color!="b" and color!="w"):
-            color = input("""Play as (type "b" or "w"): """)
-        maxDepth=None
+        #color=None
+        #while(color!="b" and color!="w"):
+        #    color = input("""Play as (type "b" or "w"): """)
+        #maxDepth=None
         #choosing depth
-        while(isinstance(maxDepth, int)==False):
-            maxDepth = int(input("""Choose depth: """))
+        #while(isinstance(maxDepth, int)==False):
+            #maxDepth = int(input("""Choose depth: """))
         #playing loop
         while(self.endchecks()==False):
-            if color=="b":
+            if P_COLOR=="b":
                 print("The engine is thinking...")
-                self.playEngineMove(maxDepth, ch.WHITE)
+                self.playEngineMove(MAX_DEPTH, ch.WHITE)
                 print(self.board)
                 self.playHumanMove()
                 print(self.board)
-            elif color=="w":
+            elif P_COLOR=="w":
                 print(self.board)
                 self.playHumanMove()
                 print(self.board)
                 print("The engine is thinking...")
-                self.playEngineMove(maxDepth, ch.BLACK)
+                self.playEngineMove(MAX_DEPTH, ch.BLACK)
             print(self.board)
             print(self.board.outcome())
         #reset the board
@@ -80,5 +85,5 @@ class Main:
 
 #create an instance and start a game
 newBoard= ch.Board()
-game = Main(newBoard)
+game = Engine(newBoard)
 bruh = game.startGame()

@@ -2,7 +2,7 @@ import chess as ch
 import random as rd
 
 
-class Engine:
+class Berlinerengine:
 
     def __init__(self, board, maxDepth, color):
         self.board = board
@@ -25,7 +25,11 @@ class Engine:
         compt = 0
         # Sums up the material values
         for i in range(64):
-            compt += scores[ch.SQUARES[i]] * -1 if self.board.color_at(ch.SQUARES[i]) != self.color else 1
+            try:
+                compt += scores[ch.SQUARES[i]] * -1 if self.board.color_at(ch.SQUARES[i]) != self.color else 1
+            except:
+                print(ch.SQUARES[i])
+
         compt += self.openning()+self.endchecks() + 0.001 * rd.random()
         return compt
 
@@ -106,6 +110,8 @@ class Engine:
                     listKeyPrev = [i for i in key]
                     for i in listKeyPrev: self.board.push(ch.Move.from_uci(i))
                     for move in third_moves[key]:
+                        print(key)
+                        print(third_moves[key])
                         self.board.push(ch.Move.from_uci(move))
                         if self.board.legal_moves.count() > 0:
                             listKey = []
@@ -123,18 +129,8 @@ class Engine:
             print("-")
             print(
                 "--------------------------------------------------------------------------------------------------------------")
-            print(next_moves)
+            #print(next_moves)
 
         for key in scores:
             scores[key] = max(scores[key])
         return sorted(scores,key=lambda x: scores[x])[0]
-
-
-
-
-
-
-
-
-
-

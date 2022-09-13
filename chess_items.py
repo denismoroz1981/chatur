@@ -242,7 +242,7 @@ class Chessboard:
                     try:
                         empty_cells = int(piece_map[r][index])
                         self.__table[r][i] = 0
-                        empty_cells -= 1
+                        #empty_cells -= 1
                     except ValueError:
                         self.__table[r][i] = piece_map[r][index]
                     index +=1
