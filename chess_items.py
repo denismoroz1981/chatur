@@ -20,6 +20,7 @@ class Chessboard:
         self.__all_pieces = pg.sprite.Group()
         self.__all_areas = pg.sprite.Group()
         self.__all_legal = pg.sprite.Group() #cells of legal moves
+        self.__all_inputboxes = pg.sprite.Group()
         self.__inputbox = None
         self.__pressed_cell = None
         self.__picked_piece = None
@@ -74,7 +75,7 @@ class Chessboard:
 
     def __draw_input_box(self, board_rect: pg.Rect):
         self.__inputbox = Inputbox(board_rect)
-        self.__all_cells.add(self.__inputbox) #correct to make separate methods for inputboxes
+        self.__all_inputboxes.add(self.__inputbox)
 
     def __create_num_fields(self):
         n_lines = pg.Surface((self.__qty * self.__size, self.__size // 3))
@@ -168,15 +169,17 @@ class Chessboard:
 
     def drag(self, position:tuple):
         if self.__dragged_piece is not None:
+
             self.__dragged_piece.rect.center = position
             self.__grand_update()
 
     def btn_down(self, button_type:int, position:tuple):
         self.__pressed_cell = self.__get_cell(position)
-        if self.__pressed_cell.field_name != "inputbox":
+        if self.__pressed_cell.field_name != "inputbox": #to change
             self.__inputbox.deactivate()
             self.__dragged_piece = self.__get_piece_on_cell(self.__pressed_cell)
             if self.__dragged_piece is not None:
+                self.__legal_cell_empty()
                 self.__dragged_piece.rect.center = position
                 #legal moves
                 self.__mark_legal_moves(self.__pressed_cell.field_name)
@@ -196,8 +199,16 @@ class Chessboard:
             if button_type == 1:
                 self.__pick_cell(released_cell)
         if self.__dragged_piece is not None:
-            self.__dragged_piece.move_to_cell(released_cell)
+            #legal move check
+            if released_cell.legal == False:
+                released_cell = self.__get_cell_by_name(self.__dragged_piece.field_name)
+                self.__dragged_piece.move_to_cell(released_cell)
+            else:
+                self.__legal_cell_empty()
+                self.__engine.play_move(self.__dragged_piece.field_name + released_cell.field_name)
+                self.__dragged_piece.move_to_cell(released_cell)
             self.__dragged_piece = None
+
         self.__grand_update()
 
     def __check_paste(self):
@@ -282,9 +293,14 @@ class Chessboard:
                     self.__all_areas.add(pick)
                     self.__picked_piece = piece
 
+
         else:
-            self.__picked_piece.move_to_cell(cell)
+            if cell.legal == True:
+                self.__engine.play_move(self.__picked_piece.field_name + cell.field_name)
+                self.__picked_piece.move_to_cell(cell)
+
             self.__picked_piece = None
+            self.__legal_cell_empty()
 
     def __unmark_all_cells(self):
        self.__all_areas.empty()
@@ -308,7 +324,7 @@ class Chessboard:
     def __mark_legal_moves(self, start_cell: str):
         legal_moves_dict = self.__legal_moves_dict()
         print(legal_moves_dict)
-        if legal_moves_dict is not None:
+        if legal_moves_dict is not None and start_cell in legal_moves_dict :
             for cell_name in legal_moves_dict[start_cell]:
                 cell = self.__get_cell_by_name(cell_name)
                 cell.legal = True
@@ -321,6 +337,10 @@ class Chessboard:
                 return cell
         return None
 
+    def __legal_cell_empty(self):
+        self.__all_legal.empty()
+        for cell in self.__all_cells:
+            cell.legal = False
 
 #----------------------------------------------------------------
     def __grand_update(self):
@@ -328,6 +348,7 @@ class Chessboard:
         self.__all_areas.draw(self.__screen)
         self.__all_pieces.draw(self.__screen)
         self.__all_legal.draw(self.__screen)
+        self.__all_inputboxes.draw(self.__screen)
         pg.display.update()
 
 class Cell(pg.sprite.Sprite):

@@ -11,6 +11,7 @@ class Piece(pg.sprite.Sprite):
         self.field_name = field_name
 
     def move_to_cell(self, cell): #will use it to draw rival's move
+
         self.rect = cell.rect.copy()
         self.field_name = cell.field_name
 

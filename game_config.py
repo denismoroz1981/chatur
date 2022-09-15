@@ -30,4 +30,4 @@ PIECES_TYPES = {
 }
 
 P_COLOR = "w"
-MAX_DEPTH = 3
+MAX_DEPTH = 1
