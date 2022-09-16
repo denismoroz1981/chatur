@@ -29,9 +29,10 @@ class Chessboard:
         self.__hotkey = {pg.K_LCTRL: False, pg.K_v: False}
         self.__prepare_screen()
         self.__draw_playboard()
+        self.__engine = Engine(ch.Board())
         self.__setup_board()
         self.__grand_update()
-        self.__engine = Engine(ch.Board())
+        
 
     def __prepare_screen(self):
         back_img = pg.image.load(IMG_PATH  + WIN_BG_IMG)
