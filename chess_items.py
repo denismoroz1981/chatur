@@ -29,9 +29,10 @@ class Chessboard:
         self.__hotkey = {pg.K_LCTRL: False, pg.K_v: False}
         self.__prepare_screen()
         self.__draw_playboard()
-        self.__setup_board()
-        self.__grand_update()
         self.__engine = Engine(ch.Board())
+        self.__update_board_with_fen(self.__engine.get_fen())
+        self.__grand_update()
+
 
     def __prepare_screen(self):
         back_img = pg.image.load(IMG_PATH  + WIN_BG_IMG)
@@ -163,7 +164,7 @@ class Chessboard:
 
     def __get_piece_on_cell(self,cell):
         for piece in self.__all_pieces:
-            if piece.field_name == cell.field_name:
+            if piece.field_name == cell.field_name and piece.color == self.__engine.get_color():
                 return piece
         return None
 
@@ -174,19 +175,20 @@ class Chessboard:
             self.__grand_update()
 
     def btn_down(self, button_type:int, position:tuple):
-        self.__pressed_cell = self.__get_cell(position)
-        if self.__pressed_cell.field_name != "inputbox": #to change
-            self.__inputbox.deactivate()
-            self.__dragged_piece = self.__get_piece_on_cell(self.__pressed_cell)
-            if self.__dragged_piece is not None:
-                self.__legal_cell_empty()
-                self.__dragged_piece.rect.center = position
-                #legal moves
-                self.__mark_legal_moves(self.__pressed_cell.field_name)
-                self.__grand_update()
-        else:
-            self.__pressed_cell = None
-            self.__inputbox.activate()
+        #if self.__picked_piece is None:
+            self.__pressed_cell = self.__get_cell(position)
+            if self.__pressed_cell.field_name != "inputbox": #to change
+                self.__inputbox.deactivate()
+                self.__dragged_piece = self.__get_piece_on_cell(self.__pressed_cell)
+                if self.__dragged_piece is not None:
+                    self.__legal_cell_empty()
+                    self.__dragged_piece.rect.center = position
+                    #legal moves
+                    self.__mark_legal_moves(self.__pressed_cell.field_name)
+                    self.__grand_update()
+            else:
+                self.__pressed_cell = None
+                self.__inputbox.activate()
 
 
 
@@ -205,8 +207,8 @@ class Chessboard:
                 self.__dragged_piece.move_to_cell(released_cell)
             else:
                 self.__legal_cell_empty()
-                self.__engine.play_move(self.__dragged_piece.field_name + released_cell.field_name)
-                self.__dragged_piece.move_to_cell(released_cell)
+                self.__update_move(self.__dragged_piece.field_name, released_cell.field_name)
+                #self.__dragged_piece.move_to_cell(released_cell)
             self.__dragged_piece = None
 
         self.__grand_update()
@@ -245,25 +247,28 @@ class Chessboard:
         if event.key == pg.K_v:
             self.__hotkey[pg.K_v] = False
 
-    def __update_board_with_fen(self):
-        empty_cells = 0
-        piece_map = self.__inputbox.text.split('/')
+    def __update_board_with_fen(self, fen):
+
+        #piece_map = self.__inputbox.text.split('/')
+        piece_map = fen.split('/')
         #for r in range(len(self.__table)):
         for r in range(len(piece_map)):
             index = 0
             #for i in range(len(self.__table[r])):for r in range(len(self.__table)):
-            print(piece_map[r])
-            print(len(piece_map[r]))
+            #print(piece_map[r])
+            #print(len(piece_map[r]))
             for i in range(len(piece_map[r])):
                 #if empty_cells == 0
-
+                    empty_cells = 0
                     try:
-                        empty_cells = int(piece_map[r][index])
-                        self.__table[r][i] = 0
+                        empty_cells = int(piece_map[r][i])
+                        for j in range(empty_cells):
+                            self.__table[r][index] = 0
+                            index +=1
                         #empty_cells -= 1
                     except ValueError:
-                        self.__table[r][i] = piece_map[r][index]
-                    index +=1
+                        self.__table[r][index] = piece_map[r][i]
+                        index +=1
                 #else:
                     #self.__table[r][i] = 0
                     #empty_cells -=1
@@ -296,8 +301,8 @@ class Chessboard:
 
         else:
             if cell.legal == True:
-                self.__engine.play_move(self.__picked_piece.field_name + cell.field_name)
-                self.__picked_piece.move_to_cell(cell)
+                self.__update_move(self.__picked_piece.field_name, cell.field_name)
+                #self.__picked_piece.move_to_cell(cell)
 
             self.__picked_piece = None
             self.__legal_cell_empty()
@@ -341,6 +346,10 @@ class Chessboard:
         self.__all_legal.empty()
         for cell in self.__all_cells:
             cell.legal = False
+
+    def __update_move(self,start_cell, end_cell):
+        self.__engine.play_move(start_cell + end_cell)
+        self.__update_board_with_fen(self.__engine.get_fen())
 
 #----------------------------------------------------------------
     def __grand_update(self):

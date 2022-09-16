@@ -5,16 +5,26 @@ from game_config import *
 class Engine:
 
     def __init__(self, board=ch.Board):
-        self.board=board
+        self.__board=board
 
     def get_legal_moves(self):
-        if self.board.legal_moves.count() > 0:
-            return [i.uci() for i in self.board.legal_moves]
+        if self.__board.legal_moves.count() > 0:
+            return [i.uci() for i in self.__board.legal_moves]
         else:
             return None
 
     def play_move(self, move:str):
-       self.board.push(ch.Move.from_uci(move))
+       print("move: ",move)
+       self.__board.push(ch.Move.from_uci(move))
+
+    def get_fen(self):
+        print(self.__board.fen()[:-13])
+        return self.__board.fen()[:-13]
+
+    def get_color(self):
+        color = "w" if self.__board.turn == ch.WHITE else "b"
+        return color
+
     #play human move
     # def playHumanMove(self):
     #     try:
