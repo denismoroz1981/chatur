@@ -117,8 +117,8 @@ class Berlinerengine:
                             for i in listKeyPrev: listKey.append(i)
                             listKey.append(move)
                             listMoves = [i.uci() for i in self.board.legal_moves]
-                            print(listKey)
-                            print(listMoves)
+                            #print(listKey)
+                            #print(listMoves)
                             next_moves.update({tuple(listKey): listMoves})
                             if depth == self.maxDepth-1:
                                 scores[key[0]].append(self.evalFunct())

@@ -207,7 +207,8 @@ class Chessboard:
                 self.__dragged_piece.move_to_cell(released_cell)
             else:
                 self.__legal_cell_empty()
-                self.__update_move(self.__dragged_piece.field_name, released_cell.field_name)
+                self.__update_move(self.__dragged_piece.field_name,
+                released_cell.field_name, self.__dragged_piece.is_pawn)
                 #self.__dragged_piece.move_to_cell(released_cell)
             self.__dragged_piece = None
 
@@ -272,7 +273,7 @@ class Chessboard:
                 #else:
                     #self.__table[r][i] = 0
                     #empty_cells -=1
-        print(self.__table)
+        #print(self.__table)
         self.__all_pieces.empty()
         self.__setup_board()
         self.__grand_update()
@@ -301,7 +302,7 @@ class Chessboard:
 
         else:
             if cell.legal == True:
-                self.__update_move(self.__picked_piece.field_name, cell.field_name)
+                self.__update_move(self.__picked_piece.field_name, cell.field_name, self.__picked_piece.is_pawn)
                 #self.__picked_piece.move_to_cell(cell)
 
             self.__picked_piece = None
@@ -347,9 +348,14 @@ class Chessboard:
         for cell in self.__all_cells:
             cell.legal = False
 
-    def __update_move(self,start_cell, end_cell):
-        self.__engine.play_move(start_cell + end_cell)
+    def __update_move(self,start_cell, end_cell, is_pawn):
+        promo = self.__get_promo_piece() if is_pawn and (end_cell[1] == "1" or end_cell[1] == "8") else ""
+        #print(start_cell + end_cell + promo, " ", is_pawn, " ", promo)
+        self.__engine.play_move(start_cell + end_cell + promo)
         self.__update_board_with_fen(self.__engine.get_fen())
+
+    def __get_promo_piece(self):
+        return "q"
 
 #----------------------------------------------------------------
     def __grand_update(self):
