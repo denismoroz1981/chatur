@@ -25,6 +25,7 @@ class Chessboard:
         self.__pressed_cell = None
         self.__picked_piece = None
         self.__dragged_piece = None
+        self.__promo_pieces = pg.sprite.Group()
         self.__func_keys = [pg.K_LCTRL, pg.K_v, pg.K_RETURN, pg.K_BACKSPACE]
         self.__hotkey = {pg.K_LCTRL: False, pg.K_v: False}
         self.__prepare_screen()
@@ -355,6 +356,11 @@ class Chessboard:
         self.__update_board_with_fen(self.__engine.get_fen())
 
     def __get_promo_piece(self):
+
+        promo_q = Queen(self.__size * 1.5, self.__engine.get_color(),"1")
+        promo_q.rect.center = (self.__screen.get_width() // 2, self.__screen.get_height() // 2)
+        self.__promo_pieces.add(promo_q)
+
         return "q"
 
 #----------------------------------------------------------------
@@ -364,6 +370,7 @@ class Chessboard:
         self.__all_pieces.draw(self.__screen)
         self.__all_legal.draw(self.__screen)
         self.__all_inputboxes.draw(self.__screen)
+        self.__promo_pieces.draw(self.__screen)
         pg.display.update()
 
 class Cell(pg.sprite.Sprite):
