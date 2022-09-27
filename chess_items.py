@@ -28,11 +28,14 @@ class Chessboard:
         self.__promo_pieces = pg.sprite.Group()
         self.__func_keys = [pg.K_LCTRL, pg.K_v, pg.K_RETURN, pg.K_BACKSPACE]
         self.__hotkey = {pg.K_LCTRL: False, pg.K_v: False}
+        self.__promo_move = () #from cell to cell
+        self.__scene = "game"
         self.__prepare_screen()
         self.__draw_playboard()
         self.__engine = Engine(ch.Board())
         self.__update_board_with_fen(self.__engine.get_fen())
         self.__grand_update()
+
 
 
     def __prepare_screen(self):
@@ -176,7 +179,7 @@ class Chessboard:
             self.__grand_update()
 
     def btn_down(self, button_type:int, position:tuple):
-        #if self.__picked_piece is None:
+        if self.__scene == "game":
             self.__pressed_cell = self.__get_cell(position)
             if self.__pressed_cell.field_name != "inputbox": #to change
                 self.__inputbox.deactivate()
@@ -194,26 +197,39 @@ class Chessboard:
 
 
     def btn_up(self, button_type:int, position:tuple):
-        released_cell = self.__get_cell(position)
-        if (released_cell is not None) and (released_cell == self.__pressed_cell):
-            if button_type == 3:
-                self.__mark_cell(released_cell)
+        if self.__scene == "game":
+            released_cell = self.__get_cell(position)
+            if (released_cell is not None) and (released_cell == self.__pressed_cell):
+                if button_type == 3:
+                    self.__mark_cell(released_cell)
 
-            if button_type == 1:
-                self.__pick_cell(released_cell)
-        if self.__dragged_piece is not None:
-            #legal move check
-            if released_cell.legal == False:
-                released_cell = self.__get_cell_by_name(self.__dragged_piece.field_name)
-                self.__dragged_piece.move_to_cell(released_cell)
-            else:
-                self.__legal_cell_empty()
-                self.__update_move(self.__dragged_piece.field_name,
-                released_cell.field_name, self.__dragged_piece.is_pawn)
-                #self.__dragged_piece.move_to_cell(released_cell)
-            self.__dragged_piece = None
-
+                if button_type == 1:
+                    self.__pick_cell(released_cell)
+            if self.__dragged_piece is not None:
+                #legal move check
+                if released_cell.legal == False:
+                    released_cell = self.__get_cell_by_name(self.__dragged_piece.field_name)
+                    self.__dragged_piece.move_to_cell(released_cell)
+                else:
+                    self.__legal_cell_empty()
+                    self.__update_move(self.__dragged_piece.field_name,
+                    released_cell.field_name, self.__dragged_piece.is_pawn)
+                    #self.__dragged_piece.move_to_cell(released_cell)
+                self.__dragged_piece = None
         self.__grand_update()
+
+        if self.__scene == "promo":
+            print("promo_mode")
+            if button_type == 1:
+                for piece in self.__promo_pieces:
+                    if piece.rect.collidepoint(position):
+                        self.__promo_pieces.empty()
+                        self.__scene = "game"
+                        self.__update_move(self.__promo_move[0],
+                           self.__promo_move[1],False, piece.field_name)
+
+
+
 
     def __check_paste(self):
         if self.__hotkey[pg.K_LCTRL] and self.__hotkey[pg.K_v]:
@@ -349,19 +365,24 @@ class Chessboard:
         for cell in self.__all_cells:
             cell.legal = False
 
-    def __update_move(self,start_cell, end_cell, is_pawn):
-        promo = self.__get_promo_piece() if is_pawn and (end_cell[1] == "1" or end_cell[1] == "8") else ""
-        #print(start_cell + end_cell + promo, " ", is_pawn, " ", promo)
-        self.__engine.play_move(start_cell + end_cell + promo)
-        self.__update_board_with_fen(self.__engine.get_fen())
+    def __update_move(self,start_cell, end_cell, is_pawn, promo = ""):
+        if is_pawn and (end_cell[1] == "1" or end_cell[1] == "8"):
+            self.__promo_move = (start_cell, end_cell)
+            self.__show_promo_piece()
+        else:
+            #print(start_cell + end_cell + promo, " ", is_pawn, " ", promo)
+            self.__engine.play_move(start_cell + end_cell + promo)
+            self.__selected_promo = ""
+            self.__update_board_with_fen(self.__engine.get_fen())
 
-    def __get_promo_piece(self):
-
-        promo_q = Queen(self.__size * 1.5, self.__engine.get_color(),"1")
+    def __show_promo_piece(self):
+        promo_q = Queen(self.__size * 1.5, self.__engine.get_color(),"q")
         promo_q.rect.center = (self.__screen.get_width() // 2, self.__screen.get_height() // 2)
         self.__promo_pieces.add(promo_q)
+        self.__scene = "promo"
+        self.__grand_update()
 
-        return "q"
+
 
 #----------------------------------------------------------------
     def __grand_update(self):
