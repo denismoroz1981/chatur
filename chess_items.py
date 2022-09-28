@@ -179,6 +179,7 @@ class Chessboard:
             self.__grand_update()
 
     def btn_down(self, button_type:int, position:tuple):
+
         if self.__scene == "game":
             self.__pressed_cell = self.__get_cell(position)
             if self.__pressed_cell.field_name != "inputbox": #to change
@@ -197,6 +198,7 @@ class Chessboard:
 
 
     def btn_up(self, button_type:int, position:tuple):
+        print(self.__scene)
         if self.__scene == "game":
             released_cell = self.__get_cell(position)
             if (released_cell is not None) and (released_cell == self.__pressed_cell):
@@ -210,13 +212,14 @@ class Chessboard:
                 if released_cell.legal == False:
                     released_cell = self.__get_cell_by_name(self.__dragged_piece.field_name)
                     self.__dragged_piece.move_to_cell(released_cell)
+                    #self.__grand_update()
                 else:
                     self.__legal_cell_empty()
                     self.__update_move(self.__dragged_piece.field_name,
                     released_cell.field_name, self.__dragged_piece.is_pawn)
                     #self.__dragged_piece.move_to_cell(released_cell)
                 self.__dragged_piece = None
-        self.__grand_update()
+            self.__grand_update()
 
         if self.__scene == "promo":
             print("promo_mode")
@@ -346,7 +349,7 @@ class Chessboard:
 
     def __mark_legal_moves(self, start_cell: str):
         legal_moves_dict = self.__legal_moves_dict()
-        print(legal_moves_dict)
+        #print(legal_moves_dict)
         if legal_moves_dict is not None and start_cell in legal_moves_dict :
             for cell_name in legal_moves_dict[start_cell]:
                 cell = self.__get_cell_by_name(cell_name)

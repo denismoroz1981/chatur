@@ -21,15 +21,15 @@ while run:
             pg.quit()
             run = False
 
-            if event.type == pg.MOUSEBUTTONDOWN:
+        if event.type == pg.MOUSEBUTTONDOWN:
                 chessboard.btn_down(event.button,event.pos)
-            if event.type == pg.MOUSEBUTTONUP:
+        if event.type == pg.MOUSEBUTTONUP:
                 chessboard.btn_up(event.button, event.pos)
-            if event.type == pg.MOUSEMOTION:
+        if event.type == pg.MOUSEMOTION:
                 chessboard.drag(event.pos)
-            if event.type == pg.KEYDOWN:
+        if event.type == pg.KEYDOWN:
                 chessboard.key_down(event)
-            if event.type == pg.KEYUP:
+        if event.type == pg.KEYUP:
                 chessboard.key_up(event)
 
 
