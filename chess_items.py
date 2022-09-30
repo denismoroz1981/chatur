@@ -379,8 +379,18 @@ class Chessboard:
             self.__update_board_with_fen(self.__engine.get_fen())
 
     def __show_promo_piece(self):
-        promo_q = Queen(self.__size * 1.5, self.__engine.get_color(),"q")
-        promo_q.rect.center = (self.__screen.get_width() // 2, self.__screen.get_height() // 2)
+        center = (self.__screen.get_width() // 2, self.__screen.get_height() // 2)
+        promo_k = Knight(self.__size * 1.6, self.__engine.get_color(),"k")
+        promo_k.rect.center = (center[0]-self.__size*1.6*1.5,center[1])
+        promo_b = Bishop(self.__size * 1.6, self.__engine.get_color(),"b")
+        promo_b.rect.center = (center[0]-self.__size*1.6*0.5,center[1])
+        promo_r = Knight(self.__size * 1.6, self.__engine.get_color(),"r")
+        promo_r.rect.center = (center[0]+self.__size*1.6*0.5,center[1])
+        promo_q = Queen(self.__size * 1.6, self.__engine.get_color(),"q")
+        promo_q.rect.center = (center[0]+self.__size*1.6*1.5,center[1])
+        self.__promo_pieces.add(promo_k)
+        self.__promo_pieces.add(promo_b)
+        self.__promo_pieces.add(promo_r)
         self.__promo_pieces.add(promo_q)
         self.__scene = "promo"
         self.__grand_update()
