@@ -173,10 +173,17 @@ class Chessboard:
         return None
 
     def drag(self, position:tuple):
-        if self.__dragged_piece is not None:
+        if self.__scene == "game":
+            if self.__dragged_piece is not None:
 
-            self.__dragged_piece.rect.center = position
-            self.__grand_update()
+                self.__dragged_piece.rect.center = position
+                self.__grand_update()
+        if self.__scene == "promo":
+            for piece in self.__promo_pieces:
+                if piece.rect.collidepoint(position):
+                    pg.draw.rect(self.__screen,YELLOW,piece.rect,2)
+                    pg.display.update()
+
 
     def btn_down(self, button_type:int, position:tuple):
 
@@ -380,11 +387,11 @@ class Chessboard:
 
     def __show_promo_piece(self):
         center = (self.__screen.get_width() // 2, self.__screen.get_height() // 2)
-        promo_k = Knight(self.__size * 1.6, self.__engine.get_color(),"k")
+        promo_k = Knight(self.__size * 1.6, self.__engine.get_color(),"n")
         promo_k.rect.center = (center[0]-self.__size*1.6*1.5,center[1])
         promo_b = Bishop(self.__size * 1.6, self.__engine.get_color(),"b")
         promo_b.rect.center = (center[0]-self.__size*1.6*0.5,center[1])
-        promo_r = Knight(self.__size * 1.6, self.__engine.get_color(),"r")
+        promo_r = Rook(self.__size * 1.6, self.__engine.get_color(),"r")
         promo_r.rect.center = (center[0]+self.__size*1.6*0.5,center[1])
         promo_q = Queen(self.__size * 1.6, self.__engine.get_color(),"q")
         promo_q.rect.center = (center[0]+self.__size*1.6*1.5,center[1])

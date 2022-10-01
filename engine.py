@@ -18,8 +18,9 @@ class Engine:
        self.__board.push(ch.Move.from_uci(move))
 
     def get_fen(self):
-        print(self.__board.fen()[:-13])
-        return self.__board.fen()[:-13]
+        print(self.__board.fen())
+        print(self.__board.fen().split(" ")[0])
+        return self.__board.fen().split(" ")[0]
 
     def get_color(self):
         color = "w" if self.__board.turn == ch.WHITE else "b"
