@@ -20,6 +20,7 @@ class Chessboard:
         self.__all_pieces = pg.sprite.Group()
         self.__all_areas = pg.sprite.Group()
         self.__all_legal = pg.sprite.Group() #cells of legal moves
+        self.__all_borders = pg.sprite.Group()
         self.__all_inputboxes = pg.sprite.Group()
         self.__inputbox = None
         self.__pressed_cell = None
@@ -179,10 +180,11 @@ class Chessboard:
                 self.__dragged_piece.rect.center = position
                 self.__grand_update()
         if self.__scene == "promo":
+            self.__all_borders.empty()
             for piece in self.__promo_pieces:
                 if piece.rect.collidepoint(position):
-                    pg.draw.rect(self.__screen,YELLOW,piece.rect,2)
-                    pg.display.update()
+                    self.__all_borders.add(Border(piece))
+                    self.__grand_update()
 
 
     def btn_down(self, button_type:int, position:tuple):
@@ -234,6 +236,7 @@ class Chessboard:
                 for piece in self.__promo_pieces:
                     if piece.rect.collidepoint(position):
                         self.__promo_pieces.empty()
+                        self.__all_borders.empty()
                         self.__scene = "game"
                         self.__update_move(self.__promo_move[0],
                            self.__promo_move[1],False, piece.field_name)
@@ -412,6 +415,7 @@ class Chessboard:
         self.__all_legal.draw(self.__screen)
         self.__all_inputboxes.draw(self.__screen)
         self.__promo_pieces.draw(self.__screen)
+        self.__all_borders.draw(self.__screen)
         pg.display.update()
 
 class Cell(pg.sprite.Sprite):
@@ -487,3 +491,13 @@ class Legal(pg.sprite.Sprite):
         self.image = pg.transform.scale(picture, area_size)
         self.rect = pg.Rect(coords, area_size)
         self.field_name = cell.field_name
+
+class Border(pg.sprite.Sprite):
+    def __init__(self,piece:Piece):
+        print("border init")
+        super().__init__()
+        coords = (piece.rect.x,piece.rect.y)
+        area_size = (piece.rect.width, piece.rect.height)
+        self.image = pg.Surface([piece.rect.width, piece.rect.height],pg.SRCALPHA, 32).convert_alpha()
+        pg.draw.rect(self.image, YELLOW, self.image.get_rect(),2)
+        self.rect = pg.Rect(coords,area_size)
