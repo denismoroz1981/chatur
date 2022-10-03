@@ -149,7 +149,12 @@ class Chessboard:
         field_name = self.__to_field_name(table_coord)
         piece_tuple = self.__pieces_types[piece_symbol]
         classname = globals()[piece_tuple[0]]
-        return classname(self.__size, piece_tuple[1], field_name)
+        if piece_symbol in {"k","K"} and piece_tuple[1] == self.__engine.get_color():
+           return classname(self.__size, piece_tuple[1], field_name,self.__engine.outcome)
+        else:
+           return classname(self.__size, piece_tuple[1], field_name)
+
+
 
     def __to_field_name(self, table_coord:tuple):
         return LTRS[table_coord[1]] + str(self.__qty - table_coord[0])

@@ -47,25 +47,22 @@ class Engine:
         engine = ce.Berlinerengine(self.board, maxDepth, color)
         self.board.push(engine.getBestMove())"""
 
-    #checks on game end
-    def endchecks(self):
-        endcheck = False
-        if self.board.is_checkmate():
-            print("Checkmate!")
-            endcheck = True
-        elif self.board.is_stalemate():
-            print("Stalemate -> DRAW")
-            endcheck = True
-        elif self.board.is_fivefold_repetition():
-            print("Fivefold repetition -> DRAW")
-            endcheck = True
-        elif self.board.is_fifty_moves():
-            print("Fifty moves -> DRAW")
-            endcheck = True
-        elif self.board.is_check():
-            print("Check!")
-            endcheck = True
-        return endcheck
+    @property
+    def outcome(self):
+        if self.__board.is_checkmate():
+            return "checkmate"
+        elif self.__board.is_stalemate():
+            return "stalemate"
+        elif self.__board.is_fivefold_repetition():
+            return "fivefold_repetion"
+        elif self.__board.is_fifty_moves():
+            return "fifty_moves"
+        elif self.__board.is_check():
+            return "check"
+        else:
+            return None
+
+
 
     #start a game
     #def startGame(self):
