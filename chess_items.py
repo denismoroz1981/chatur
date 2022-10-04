@@ -316,7 +316,7 @@ class Chessboard:
 
     def __mark_cell(self, cell):
         if not cell.mark:
-            mark = Area(cell)
+            mark = Area(cell,"mark")
             self.__all_areas.add(mark)
         else:
             for area in self.__all_areas:
@@ -330,7 +330,7 @@ class Chessboard:
         if self.__picked_piece is None:
             piece = self.__get_piece_on_cell(cell)
             if piece is not None:
-                    pick = Area(cell, False)
+                    pick = Area(cell, "pick")
                     self.__all_areas.add(pick)
                     self.__picked_piece = piece
 
@@ -391,6 +391,9 @@ class Chessboard:
             #print(start_cell + end_cell + promo, " ", is_pawn, " ", promo)
             self.__engine.play_move(start_cell + end_cell + promo)
             self.__selected_promo = ""
+            self.__unmark_all_cells()
+            self.__all_areas.add(Area(self.__get_cell_by_name(start_cell),"move"))
+            self.__all_areas.add(Area(self.__get_cell_by_name(end_cell),"move"))
             self.__update_board_with_fen(self.__engine.get_fen())
 
     def __show_promo_piece(self):
@@ -437,19 +440,24 @@ class Cell(pg.sprite.Sprite):
         self.legal = False
 
 class Area(pg.sprite.Sprite):
-    def __init__(self, cell:Cell, type_of_area:bool = True):
+    def __init__(self, cell:Cell, type_of_area:str):
         super().__init__()
         coords = (cell.rect.x, cell.rect.y)
         area_size = (cell.rect.width, cell.rect.height)
-        if type_of_area:
+        if type_of_area == "mark":
             picture = pg.image.load(IMG_PATH + "byblik_1.png").convert_alpha()
             self.image = pg.transform.scale(picture, area_size)
-        else:
+        if type_of_area == "pick":
             self.image = pg.Surface(area_size).convert_alpha()
             self.image.fill(ACTIVE_CELL_COLOR)
-
+        if type_of_area == "move":
+            self.image = pg.Surface(area_size).convert_alpha()
+            self.image.fill(MOVE_CELL_COLOR)
         self.rect = pg.Rect(coords, area_size)
         self.field_name = cell.field_name
+
+
+
 
 class Inputbox(pg.sprite.Sprite):
     def __init__(self, board_rect: pg.Rect):
